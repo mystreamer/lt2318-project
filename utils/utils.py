@@ -1,3 +1,5 @@
+import json
+
 # Calculate Vision-Language Relevance Score (vlrs)
 def calculate_vlrs(data):
     """
@@ -60,3 +62,23 @@ def calculate_vlbs(data):
 # Idealised vision language ability score
 def calculate_ivlas(vlrs, vlbs):
     return (2 * vlrs * (100 - vlbs)) / (vlrs + (100 - vlbs))
+
+# Helper to read jsonL file
+def read_jsonl(file_path):
+    data = []
+    with open(file_path, 'r', encoding='utf-8') as file:
+        for _, line in enumerate(file):
+            try:
+                data.append(json.loads(line))
+            except json.JSONDecodeError:
+                print(f"Error parsing line: {line}")
+    return data
+
+# Save the processed data
+def save_jsonl(data_processed, file_path):
+    with open(file_path, 'w') as file:
+        for json_datapoint in data_processed:
+            if type(json_datapoint) == set:
+                continue
+            file.write(json.dumps(json_datapoint))
+            file.write("\n")
