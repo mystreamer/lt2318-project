@@ -1,4 +1,17 @@
 import json
+from decimal import Decimal
+from pandas._libs.missing import NAType
+
+class NAFriendlyEncoder(json.JSONEncoder):
+    """
+    Inspired by the answer here: https://stackoverflow.com/a/73659313
+    """
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return str(obj)
+        if isinstance(obj, NAType):
+            return "nA"
+        return json.JSONEncoder.default(self, obj)
 
 # Calculate Vision-Language Relevance Score (vlrs)
 def calculate_vlrs(data):
@@ -80,5 +93,5 @@ def save_jsonl(data_processed, file_path):
         for json_datapoint in data_processed:
             if type(json_datapoint) == set:
                 continue
-            file.write(json.dumps(json_datapoint))
+            file.write(json.dumps(json_datapoint, cls=NAFriendlyEncoder))
             file.write("\n")
