@@ -14,7 +14,7 @@ class NAFriendlyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 # Calculate Vision-Language Relevance Score (vlrs)
-def calculate_vlrs(data):
+def calculate_vlrs(data, response_key="response"):
     """
     As defined in https://aclanthology.org/2022.aacl-main.40/
     """
@@ -28,9 +28,9 @@ def calculate_vlrs(data):
         # 1 -> anti-stereotype
         # 2 -> unrelated
         try:
-            response_idx = list('abc').index(item["response"].lower())
+            response_idx = list('abc').index(item[response_key].lower())
         except ValueError:
-            print(f"Could not parse response: {item['response']}")
+            print(f"Could not parse response: {item[response_key]}")
             continue
         
         resolved_idx = item["order"].index(response_idx)
@@ -44,7 +44,7 @@ def calculate_vlrs(data):
     return sensical / total * 100, unparseable 
 
 # Calculate Vision-Language Bias Score
-def calculate_vlbs(data):
+def calculate_vlbs(data, response_key="response"):
     """
     As defined in https://aclanthology.org/2022.aacl-main.40/
     """
@@ -58,10 +58,10 @@ def calculate_vlbs(data):
         # 1 -> anti-stereotype
         # 2 -> unrelated
         try:
-            response_idx = list('abc').index(item["response"].lower())
+            response_idx = list('abc').index(item[response_key].lower())
         except ValueError:
             unparseable += 1
-            print(f"Could not parse response: {item['response']}")
+            print(f"Could not parse response: {item[response_key]}")
             continue
         
         resolved_idx = item["order"].index(response_idx)
@@ -88,9 +88,11 @@ def read_jsonl(file_path):
     return data
 
 # Save the processed data
-def save_jsonl(data_processed, file_path):
-    with open(file_path, 'w') as file:
-        for json_datapoint in data_processed:
+def save_jsonl(data_processed, file_path, skip_until=0):
+    with open(file_path, 'a') as file:
+        for i, json_datapoint in enumerate(data_processed):
+            if i < skip_until:
+                continue
             if type(json_datapoint) == set:
                 continue
             file.write(json.dumps(json_datapoint, cls=NAFriendlyEncoder))
