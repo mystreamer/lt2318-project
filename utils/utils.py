@@ -1,6 +1,8 @@
 import json
 from decimal import Decimal
 from pandas._libs.missing import NAType
+import pickle
+import os
 
 class NAFriendlyEncoder(json.JSONEncoder):
     """
@@ -97,3 +99,18 @@ def save_jsonl(data_processed, file_path, skip_until=0):
                 continue
             file.write(json.dumps(json_datapoint, cls=NAFriendlyEncoder))
             file.write("\n")
+
+# Simple kv-cache stored as pickle file
+class KVCache:
+    def __init__(self, filename):
+        self.filename = filename
+        self.cache = {}
+        if os.path.exists(filename):
+            with open(filename, "rb") as f:
+                self.cache = pickle.load(f)
+    def get(self, key):
+        return self.cache.get(key, None)
+    def set(self, key, value):
+        self.cache[key] = value
+        with open(self.filename, "wb") as f:
+            pickle.dump(self.cache, f)
