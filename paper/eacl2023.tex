@@ -1,0 +1,134 @@
+% This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended.
+\pdfoutput=1
+% In particular, the hyperref package requires pdfLaTeX in order to break URLs across lines.
+
+\documentclass[11pt]{article}
+
+% Remove the ''review'' option to generate the final version.
+% \usepackage[review]{EACL2023}
+\usepackage[]{EACL2023}
+
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{hyperref}
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out.
+% However, it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\title{Uncovering Stereotypical Bias in Multimodal LLMs \\ - Report for LT2318 - }
+
+\author{Dylan Massey \\
+    University of Gothenburg \\
+  \texttt{gusmasdy@student.gu.se}}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+
+% Write a few sentences which summarise your work in a way that is understandable to someone working in language technology. Why? How? Results. Conclusions. Not more than 100 words.
+
+The advent of performant and readily available large-language models (LLMs) also motivates a renewed discussion about the potential harms such models can bring about. Numerous research has shown that LLMs exhibit stereotypical biases similar to those already found in other systems relying on distributional representations and, as such, if deployed in a careless manner, pose a risk. While most research in the realm of stereotypical bias has focussed so on unimodal models, i.e. text or vision, little research has been performed on bias existant in multi-modal models deployed for cross-modal tasks. WE FIND XXX, WE SHOW ...
+
+\end{abstract}
+
+\section{Introduction}
+
+% Give some background about the problem you are trying to solve. You do this by gradually focusing into to question you are going to investigate by discussion of the previous work ending with the work that this paper more closely relates to. What question have been answered in this work and which questions are outstanding that we will be dealt with in this paper? Finally, state a list of steps that will be taken to address these issues and a description of how this paper is organised (In Section 2 we...)
+
+Research on stereotypes propagated by LLMs at the interface between text and vision appears to be scarce. Given the recent advances in the field of multimodal LLMs \citep{ruggeri_multi-dimensional_2023} and the subsequent appearance of multimodal instruction-tuned models such as chatGPT, Gemini, LLaMA3.3-vision, an investigation into the harms they might bring is warranted. The present paper aims to elicit stereotypical biases in multimodal LLMs by \textit{means of probing}. Probing does not require access to model internals (i.e., model parameters) and is therefore suited in black-box settings, where interactions with the model are limited of an API with constraints.
+
+\paragraph{Stereotypical bias} A stereotype can be understood as an ``over-generalised belief about a particular group of people" \citep[1]{nadeem_stereoset_2021}. Since LLMs are trained on large corpora of real-data often scraped from the internet, the stereotypical associations found in the ``real-world" are also present in LLMs. For a seminal review on bias the reader is referred to \citet{blodgett_language_2020} and for a more recent discussion to \citet{navigli_biases_2023}.
+
+\paragraph{Probing Dataset} To probe an LLM some dataset and constructed for an accompanying tasks are required. One such task is presented by \citet{nadeem_stereoset_2021}, who elicit stereotypical bias in pure-text LMs with the \textbf{StereoSet}. An extension of StereoSet for multimodal settings ewas introduced by \citet{zhou_vlstereoset_2022}, called \textbf{VLStereoSet}, which consists of stereotypical and anti-stereotypical images, along with captions.
+
+
+In the present paper we aim to elicit such biases by means of probing. Our main contributions are as follows:
+\begin{itemize}
+    \item We aim to elicit the bias present in two mid-sized open-source multi-model LLMs: LLaVA \& LLaMA3.2-vision.
+    \item We investigate the bias robustness on these two LLMs with the help of paraphrasing.
+    \item We extend two metrics aiming to capture bias to the case of multiple perturbations of captions in a single data point.
+\end{itemize}
+
+\section{Materials and methods}
+
+% Here you describe your toolkit and tools that you will use to test and answer these questions. Describe how the experiment(s) have been carried out in detail. What is the hypothesis that the experiment should test or more generally what should the experiment show? Not that hypotheses are different and more specific than open research questions from the introduction. There are a way of testing these research questions.
+
+%\begin{table}
+%\begin{tabular}{llll}
+%& non-actors & female & male\\\hline
+%precision & 0.967 & 0.983& 0.973\\
+%recall&  0.984&  0.993& 0.927\\
+%f1 &  0.975& 0.988& 0.949\\
+%\end{tabular}
+%\caption{Some table 2}\label{tab1}
+%\end{table}
+
+To elicit bias in multimodal instruction-tuned LLMs, we choose the cross-modal task of image-caption matching. Formally, given an image $\mathcal{I}$ along with a set of possible captions $\mathcal{O} = \{S_1, ... , S_n\}$, the model is tasked to choose the textual caption that most appropriately matches given image. 
+
+\paragraph{Dataset} We use the VLStereoSet \citep{zhou_vlstereoset_2022} mentioned in the introduction and transform it to fit an image caption matching task in a dialogue-based instruction setting. The intent is to investigate how often a stereotypical caption is chosen under an anti-stereotypical image. The model therefore is presented either with an stereotypical image $\mathcal{I_s}$, or an anti-stereotypical image $\mathcal{I_a}$. Each of the images is accompanied with a set of options $\mathcal{O}$ corresponding to a stereotypical ($S_s$, an anti-stereotypical ($S_a$) and an nonsensical ($S_n$) caption. An example is displayed in ...
+
+\paragraph{Robustness} Datasets such as the one used the present study are generated with the help of templates. Using templates for bias elicitation does not account for the richness of how such content can be phrased \citep{dev_measures_2022}. To circumvent this limitation we experiment with paraphrasing methods. That is, the parrot paraphraser \citet{damodaran_parrot_2021} and \verb+LLaMA3.3-70b+ \footnote{Information available at: \url{https://www.llama.com/}}. After an \textit{ad-hoc} evaluation, we noticed that LLaMA offers more fine-grained control over how a paraphrase is generated (through prompting) and appears to generate more diverse outputs than the parrot paraphraser, which is based on T5 generated outputs which are ranked and "accepted" as viable solutions by further models, such as RoBERTa. With LLaMA, we experiment with multiple prompts and opt for a two-step solution. First we instruct the model to generate three variants paraphrasing only the most ``pertinent" noun-phrase in the caption provided. A brief qualitative manual evaluation shows that the generated variations appear viable both syntactically and semantically without altering the content too much.
+
+\paragraph{Evaluation metrics} When evaluating the stereotypical bias of language models, papers usually try to capture the association strength between a target (the individuals / group) which in combination with an attribute-term evokes a certain stereotype. Historically in the case of distributional representation, the undertaking of quantifying such associations has been measured throuhg so-called ``association tests". \citet{caliskan_semantics_2017} for example introduce the Word-embedding association test (WEAT) to capture associative biases in static word embeddings such as Word2vec and GloVe. 
+
+\section{Results}
+
+% What did you find out? First show the data and then draw conclusions of the data to support your previous hypotheses/predictions. Have hypotheses been confirmed or rejected? The conclusions are your results. Support your argument with figures and tables. It should be possible to read figures and tables without the text and understand the text without looking at figures and tables. Refer to each figure or table at least once in the text.
+
+\paragraph{LLaVA}
+
+\paragraph{LLaMA}
+
+\paragraph{Paraphrasing} Since we instructed the paraphrasing-LLM to replace the \textit{most pertinent} noun-phrase with an appropriate paraphrase, there is a certain amount of arbitrarity in the selection of the noun phrase (unless there is only a single-one, in which case it is mostly the stereotypical target), such as e.g. in \textit{My sister is caring}. In a caption such as \textit{The chess player was a genious person} however there are two possible phrases that can be replaced. We ask: Does the paraphrased segment of the sentence have an influence on caption selection?
+
+\section{Discussion}
+
+% In this section you discuss your results in relation to the open research questions from the introduction. To what extent do result answer them? If applicable, look into the literature for further explanations for your findings which may give you further suggestions: new findings that could not be anticipated from the beginning. Emphasise and discuss in what ways your work is relevant for the chosen research area.
+
+\section{Conclusions and further work}
+
+% Summarise what has been done in the preceding sections and point out areas where the work described in this report could be extended in the future
+
+
+\section{Limitations}
+
+
+
+
+%% baselin ***********************?????
+ 
+\bibliography{references}
+\bibliographystyle{acl_natbib}
+
+\appendix
+
+\section{Appendix: Prompts}
+\label{sec:appendix}
+
+
+\end{document}
