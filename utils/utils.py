@@ -81,7 +81,13 @@ def calculate_vlbs(data, response_key="response_extract"):
             total_antistereotypical += 1
     return sensical / total_antistereotypical * 100, unparseable
 
-def calculate_agreement(dataset_a, dataset_b, response_key="response", det_keys=["context", "image_url"]):
+def calculate_agreement(dataset_a, 
+                        dataset_b, 
+                        response_key="response", 
+                        det_keys=["context", "image_url"], 
+                        suppress_match_not_found=False,
+                        suppress_parse_warning=False,
+                        return_pairs=False):
     """
     Compares the agreement between two datasets
     Assumes that the datapoints are uniquely determined by two provided keys.
@@ -91,8 +97,12 @@ def calculate_agreement(dataset_a, dataset_b, response_key="response", det_keys=
     agreement = 0
     disagreement = 0
     unparseable = 0
-    for a in dataset_a:
+    agr_pairs = []
+    dis_pairs = []
+    for i, a in enumerate(dataset_a):
         if tuple(a[key] for key in det_keys) not in dataset_b.keys():
+            if suppress_match_not_found:
+                continue
             print("Could not find a match")
             continue
         else:
@@ -105,12 +115,18 @@ def calculate_agreement(dataset_a, dataset_b, response_key="response", det_keys=
                 resolved_idx_b = b["order"][response_idx_b]
             except ValueError:
                 unparseable += 1
+                if suppress_parse_warning:
+                    continue
                 print(f"One of the two responses is not parseable.")
                 continue
             if resolved_idx_a == resolved_idx_b:
                 agreement = agreement + 1 
+                agr_pairs.append((a, b))
             else:
                 disagreement = disagreement + 1
+                dis_pairs.append((a, b))
+    if return_pairs:
+        return agreement, disagreement, unparseable, agr_pairs, dis_pairs
     return agreement / (agreement + disagreement) * 100, unparseable
 
 # Idealised vision language ability score
@@ -226,7 +242,6 @@ def calculate_majority_vlrs(original_dataset, paraphrased_datasets, response_key
             sensical += 0
         total += 1
     return sensical / total * 100, unparseable
-
 
 # Calculate Majority-based Vision-Language Bias Score
 def calculate_majority_vlbs(original_dataset, paraphrased_datasets, response_key, det_keys=["context", "image_url"]):
